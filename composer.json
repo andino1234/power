@@ -1,0 +1,15 @@
+{
+    "name": "andino1234/power",
+    "description": "Portal privado de reportes Power BI con gestión de usuarios e importación de encuestas.",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Ariel Geovanny Andino Chinchilla",
+            "homepage": "https://github.com/andino1234",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "phpoffice/phpspreadsheet": "^5.7"
+    }
+}

@@ -1,0 +1,78 @@
+# ============================================================
+# .htaccess – Seguridad básica sin coste
+# Servidor: Apache (XAMPP / cPanel / hosting compartido)
+# ============================================================
+
+# ── Deshabilitar listado de directorios ─────────────────────
+Options -Indexes
+
+# ── Denegar acceso a archivos sensibles ─────────────────────
+<FilesMatch "\.(env|log|sql|bak|json|lock|md|git|sh|ini)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Proteger el propio .htaccess
+<Files ".htaccess">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Proteger config.php de acceso directo
+<Files "config.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# ── Cabeceras de seguridad HTTP ─────────────────────────────
+<IfModule mod_headers.c>
+    # Evita que navegadores adivinen el MIME type
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Protección básica contra XSS en navegadores antiguos
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # Esta página no puede ser incrustada en iframes de otros dominios
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # No enviar el referrer a sitios externos
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Deshabilitar características del navegador no necesarias
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+
+    # Eliminar cabecera que revela versión de servidor
+    Header unset X-Powered-By
+    Header always unset X-Powered-By
+</IfModule>
+
+# ── Ocultar versión de PHP ───────────────────────────────────
+<IfModule mod_php.c>
+    php_flag expose_php Off
+</IfModule>
+
+# ── HTTPS obligatorio (DESCOMENTAR solo en servidor de producción) ──
+# Requiere que el servidor tenga certificado SSL instalado
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteCond %{HTTPS} off
+#     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# </IfModule>
+
+# ── Protección contra clickjacking adicional ─────────────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Bloquear agentes de usuario vacíos (bots mal configurados)
+    RewriteCond %{HTTP_USER_AGENT} ^-?$
+    RewriteRule ^ - [F,L]
+</IfModule>
+
+# ── Caché para assets estáticos ──────────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css             "access plus 7 days"
+    ExpiresByType application/javascript "access plus 7 days"
+    ExpiresByType image/png            "access plus 30 days"
+    ExpiresByType image/jpeg           "access plus 30 days"
+    ExpiresByType image/svg+xml        "access plus 30 days"
+</IfModule>
